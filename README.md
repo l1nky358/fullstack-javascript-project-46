@@ -10,3 +10,13 @@ $ gendiff __fixtures__/file1.yml __fixtures__/file2.yml
   + timeout: 20
   + verbose: true
 }
+
+# Gendiff
+
+Compares two configuration files and shows a difference.
+
+## Installation
+
+```bash
+npm install -g @username/gendiff
+Usage
