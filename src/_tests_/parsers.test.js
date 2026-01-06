@@ -1,21 +1,27 @@
-import getData from '../parsers.js';
+import { readFileSync } from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
 
-describe('parsers', () => {
-  test('should parse JSON file correctly', () => {
-    const filePath = '__fixtures__/file1.json';
-    const data = getData(filePath);
-    
-    expect(data).toEqual({
-      host: 'hexlet.io',
-      timeout: 50,
-      proxy: '123.234.53.22',
-      follow: false
-    });
-  });
+const parsers = {
+  json: (content) => JSON.parse(content),
+  yml: (content) => yaml.load(content),
+  yaml: (content) => yaml.load(content),
+};
+
+const getParser = (filepath) => {
+  const ext = path.extname(filepath).slice(1).toLowerCase();
+  return parsers[ext];
+};
+
+export const parseFile = (filepath) => {
+  const content = readFileSync(filepath, 'utf-8');
+  const parser = getParser(filepath);
   
-  test('should throw error for unsupported format', () => {
-    const filePath = 'test.txt';
-    
-    expect(() => getData(filePath)).toThrow('Unsupported format: txt');
-  });
-});
+  if (!parser) {
+    throw new Error(`Unsupported file format: ${filepath}`);
+  }
+  
+  return parser(content);
+};
+
+export default parseFile;

@@ -1,2 +1,12 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/l1nky358/fullstack-javascript-project-46/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/l1nky358/fullstack-javascript-project-46/actions)
+
+$ gendiff __fixtures__/file1.yml __fixtures__/file2.yml
+{
+    follow: false
+  - host: hexlet.io
+  - proxy: 123.234.53.22
+  - timeout: 50
+  + timeout: 20
+  + verbose: true
+}
