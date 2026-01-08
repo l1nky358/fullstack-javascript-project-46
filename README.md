@@ -15,8 +15,17 @@ $ gendiff __fixtures__/file1.yml __fixtures__/file2.yml
 
 Compares two configuration files and shows a difference.
 
-## Installation
+## Установка
 
 ```bash
 npm install -g @username/gendiff
 Usage
+
+# Установка
+npm install @hexlet/code
+
+# Использование
+import genDiff from '@hexlet/code';
+
+const diff = genDiff('file1.json', 'file2.json', 'plain');
+console.log(diff);

@@ -1,13 +1,17 @@
-import stylish from './stylish.js';
+import formatStylish from './stylish.js';
+import formatPlain from './plain.js';
 
 const formatters = {
-  stylish,
+  stylish: formatStylish,
+  plain: formatPlain,
 };
 
-export default (format) => {
-  const formatter = formatters[format];
+export default (formatName) => {
+  const formatter = formatters[formatName];
+  
   if (!formatter) {
-    throw new Error(`Unknown format: ${format}`);
+    throw new Error(`Unknown format: ${formatName}`);
   }
+  
   return formatter;
 };
