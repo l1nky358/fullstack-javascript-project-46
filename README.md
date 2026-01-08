@@ -29,3 +29,18 @@ import genDiff from '@hexlet/code';
 
 const diff = genDiff('file1.json', 'file2.json', 'plain');
 console.log(diff);
+
+# Установка
+npm install @hexlet/code
+
+# Использование
+import genDiff from '@hexlet/code';
+
+const diffJson = genDiff('file1.json', 'file2.json', 'json');
+console.log(diffJson);
+
+const diffPlain = genDiff('file1.json', 'file2.json', 'plain');
+console.log(diffPlain);
+
+const diffStylish = genDiff('file1.json', 'file2.json');
+console.log(diffStylish);
