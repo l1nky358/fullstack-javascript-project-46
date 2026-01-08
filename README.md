@@ -1,5 +1,6 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/l1nky358/fullstack-javascript-project-46/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/l1nky358/fullstack-javascript-project-46/actions)
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=l1nky358_fullstack-javascript-project-46)
 
 $ gendiff __fixtures__/file1.yml __fixtures__/file2.yml
 {
