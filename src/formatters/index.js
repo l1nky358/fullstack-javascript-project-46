@@ -1,6 +1,6 @@
-import formatStylish from './stylish.js';
-import formatPlain from './plain.js';
-import formatJson from './json.js';
+import formatStylish from '../stylish.js';
+import formatPlain from '../plain.js';
+import formatJson from '../json.js';
 
 const formatters = {
   stylish: formatStylish,
