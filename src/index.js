@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs';
 import { extname } from 'path';
-import parse from '../parsers.js';
-import buildDiff from '../buildDiff.js';
-import getFormatter from '../formatters/index.js';
+import parse from '../src/formatters/parsers.js';
+import buildDiff from '../src/buildTree.js';
+import getFormatter from '../src/formatters/index.js';
 
 const getFormat = (filepath) => extname(filepath).slice(1);
 const readFile = (filepath) => readFileSync(filepath, 'utf-8');
