@@ -1,4 +1,5 @@
 import fs from 'fs';
+import yaml from 'yaml';
 
 const getFileContent = (filePath) => {
   return fs.readFileSync(filePath, 'utf-8');
@@ -7,6 +8,9 @@ const getFileContent = (filePath) => {
 const parse = (content, format) => {
   if (format === 'json') {
     return JSON.parse(content);
+  }
+  if (format === 'yml' || format === 'yaml') {
+    return yaml.parse(content);
   }
   throw new Error(`Unsupported format: ${format}`);
 };
