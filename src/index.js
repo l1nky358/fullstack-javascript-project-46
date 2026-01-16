@@ -20,3 +20,4 @@ const parse = (content, format) => {
 };
 
 export { parse, getFormat };
+export default gendiff;
