@@ -19,28 +19,124 @@ const parse = (content, format) => {
   throw new Error(`Unsupported format: ${format}`);
 };
 
-const compareObjects = (obj1, obj2) => {
-  const result = [];
-  
-  const allKeys = new Set([...Object.keys(obj1), ...Object.keys(obj2)]);
+const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const buildTree = (obj1, obj2) => {
+  const allKeys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
+  const result = {};
   
   for (const key of allKeys) {
-    const value1 = obj1[key];
-    const value2 = obj2[key];
+    const value1 = obj1?.[key];
+    const value2 = obj2?.[key];
     
-    if (value1 === value2) {
-      result.push(`    ${key}: ${value1}`);
-    } else if (key in obj1 && key in obj2) {
-      result.push(`  - ${key}: ${value1}`);
-      result.push(`  + ${key}: ${value2}`);
-    } else if (key in obj1) {
-      result.push(`  - ${key}: ${value1}`);
+    if (!(key in obj1)) {
+      result[key] = { type: 'added', value: value2 };
+    } else if (!(key in obj2)) {
+      result[key] = { type: 'removed', value: value1 };
+    } else if (isObject(value1) && isObject(value2)) {
+      result[key] = { type: 'nested', children: buildTree(value1, value2) };
+    } else if (value1 === value2) {
+      result[key] = { type: 'unchanged', value: value1 };
     } else {
-      result.push(`  + ${key}: ${value2}`);
+      result[key] = { type: 'changed', oldValue: value1, newValue: value2 };
     }
   }
   
-  return `{\n${result.join('\n')}\n}`;
+  return result;
+};
+
+const formatStylish = (tree, depth = 1) => {
+  const indent = '  '.repeat(depth * 2 - 2);
+  const bracketIndent = '  '.repeat(depth * 2 - 4);
+  
+  const lines = Object.entries(tree).map(([key, node]) => {
+    const { type } = node;
+    
+    if (type === 'nested') {
+      return `${indent}  ${key}: ${formatStylish(node.children, depth + 1)}`;
+    }
+    
+    const valueIndent = `${indent}  `;
+    
+    if (type === 'added') {
+      return `${indent}+ ${key}: ${formatValue(node.value, depth + 1)}`;
+    }
+    
+    if (type === 'removed') {
+      return `${indent}- ${key}: ${formatValue(node.value, depth + 1)}`;
+    }
+    
+    if (type === 'changed') {
+      return [
+        `${indent}- ${key}: ${formatValue(node.oldValue, depth + 1)}`,
+        `${indent}+ ${key}: ${formatValue(node.newValue, depth + 1)}`
+      ].join('\n');
+    }
+    
+    return `${indent}  ${key}: ${formatValue(node.value, depth + 1)}`;
+  });
+  
+  return `{\n${lines.join('\n')}\n${bracketIndent}}`;
+};
+
+const formatValue = (value, depth) => {
+  if (typeof value === 'object' && value !== null) {
+    const indent = '  '.repeat(depth * 2);
+    const bracketIndent = '  '.repeat(depth * 2 - 2);
+    
+    const lines = Object.entries(value).map(([key, val]) => {
+      return `${indent}  ${key}: ${formatValue(val, depth + 1)}`;
+    });
+    
+    return `{\n${lines.join('\n')}\n${bracketIndent}}`;
+  }
+  
+  if (value === null) return 'null';
+  if (value === undefined) return '';
+  return String(value);
+};
+
+const formatPlain = (tree, path = '') => {
+  const lines = Object.entries(tree).flatMap(([key, node]) => {
+    const currentPath = path ? `${path}.${key}` : key;
+    const { type } = node;
+    
+    if (type === 'nested') {
+      return formatPlain(node.children, currentPath);
+    }
+    
+    if (type === 'added') {
+      const formattedValue = formatPlainValue(node.value);
+      return `Property '${currentPath}' was added with value: ${formattedValue}`;
+    }
+    
+    if (type === 'removed') {
+      return `Property '${currentPath}' was removed`;
+    }
+    
+    if (type === 'changed') {
+      const formattedOld = formatPlainValue(node.oldValue);
+      const formattedNew = formatPlainValue(node.newValue);
+      return `Property '${currentPath}' was updated. From ${formattedOld} to ${formattedNew}`;
+    }
+    
+    return [];
+  });
+  
+  return lines.join('\n');
+};
+
+const formatPlainValue = (value) => {
+  if (typeof value === 'object' && value !== null) {
+    return '[complex value]';
+  }
+  
+  if (typeof value === 'string') {
+    return `'${value}'`;
+  }
+  
+  if (value === null) return 'null';
+  return String(value);
 };
 
 const gendiff = (filepath1, filepath2, outputFormat = 'stylish') => {
@@ -53,33 +149,21 @@ const gendiff = (filepath1, filepath2, outputFormat = 'stylish') => {
   const data1 = parse(content1, format1);
   const data2 = parse(content2, format2);
   
+  const tree = buildTree(data1, data2);
+  
   if (outputFormat === 'stylish') {
-    return `{
-  - follow: false
-    host: hexlet.io
-  - proxy: 123.234.53.22
-  - timeout: 50
-  + timeout: 20
-  + verbose: true
-}`;
+    return formatStylish(tree);
   }
   
   if (outputFormat === 'plain') {
-    return `Property 'follow' was removed
-Property 'proxy' was removed
-Property 'timeout' was changed from 50 to 20
-Property 'verbose' was added with value: true`;
+    return formatPlain(tree);
   }
   
   if (outputFormat === 'json') {
-    return JSON.stringify({
-      changed: ['timeout'],
-      added: ['verbose'],
-      removed: ['follow', 'proxy']
-    }, null, 2);
+    return JSON.stringify(tree, null, 2);
   }
   
-  return compareObjects(data1, data2);
+  throw new Error(`Unknown format: ${outputFormat}`);
 };
 
 export { parse, getFormat };
