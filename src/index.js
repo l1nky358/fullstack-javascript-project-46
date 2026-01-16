@@ -46,46 +46,52 @@ const buildTree = (obj1, obj2) => {
 };
 
 const formatStylish = (tree, depth = 1) => {
-  const indent = '  '.repeat(depth * 2 - 2);
-  const bracketIndent = '  '.repeat(depth * 2 - 4);
+  const indentSize = depth * 4 - 2;
+  const indent = ' '.repeat(indentSize);
+  const bracketIndent = ' '.repeat(indentSize - 2);
   
-  const lines = Object.entries(tree).map(([key, node]) => {
+  const lines = Object.entries(tree).flatMap(([key, node]) => {
     const { type } = node;
     
     if (type === 'nested') {
       return `${indent}  ${key}: ${formatStylish(node.children, depth + 1)}`;
     }
     
-    const valueIndent = `${indent}  `;
-    
     if (type === 'added') {
-      return `${indent}+ ${key}: ${formatValue(node.value, depth + 1)}`;
+      const formattedValue = formatValue(node.value, depth);
+      return `${indent}+ ${key}: ${formattedValue}`;
     }
     
     if (type === 'removed') {
-      return `${indent}- ${key}: ${formatValue(node.value, depth + 1)}`;
+      const formattedValue = formatValue(node.value, depth);
+      return `${indent}- ${key}: ${formattedValue}`;
     }
     
     if (type === 'changed') {
+      const formattedOld = formatValue(node.oldValue, depth);
+      const formattedNew = formatValue(node.newValue, depth);
       return [
-        `${indent}- ${key}: ${formatValue(node.oldValue, depth + 1)}`,
-        `${indent}+ ${key}: ${formatValue(node.newValue, depth + 1)}`
-      ].join('\n');
+        `${indent}- ${key}: ${formattedOld}`,
+        `${indent}+ ${key}: ${formattedNew}`
+      ];
     }
     
-    return `${indent}  ${key}: ${formatValue(node.value, depth + 1)}`;
+    const formattedValue = formatValue(node.value, depth);
+    return `${indent}  ${key}: ${formattedValue}`;
   });
   
   return `{\n${lines.join('\n')}\n${bracketIndent}}`;
 };
 
 const formatValue = (value, depth) => {
-  if (typeof value === 'object' && value !== null) {
-    const indent = '  '.repeat(depth * 2);
-    const bracketIndent = '  '.repeat(depth * 2 - 2);
+  if (isObject(value)) {
+    const indentSize = depth * 4;
+    const indent = ' '.repeat(indentSize);
+    const bracketIndent = ' '.repeat(indentSize - 2);
     
     const lines = Object.entries(value).map(([key, val]) => {
-      return `${indent}  ${key}: ${formatValue(val, depth + 1)}`;
+      const formattedVal = formatValue(val, depth + 1);
+      return `${indent}  ${key}: ${formattedVal}`;
     });
     
     return `{\n${lines.join('\n')}\n${bracketIndent}}`;
@@ -93,6 +99,7 @@ const formatValue = (value, depth) => {
   
   if (value === null) return 'null';
   if (value === undefined) return '';
+  if (typeof value === 'string') return value;
   return String(value);
 };
 
@@ -127,7 +134,7 @@ const formatPlain = (tree, path = '') => {
 };
 
 const formatPlainValue = (value) => {
-  if (typeof value === 'object' && value !== null) {
+  if (isObject(value)) {
     return '[complex value]';
   }
   
