@@ -49,11 +49,9 @@ const buildTree = (obj1, obj2) => {
   return result;
 };
 
-const formatStylish = (tree, depth = 0) => {
-  const indentSize = depth * 4;
-  const indent = ' '.repeat(indentSize);
-  const currentIndent = ' '.repeat(indentSize - 2);
-  const bracketIndent = ' '.repeat(indentSize - 4);
+const formatStylish = (tree, depth = 1) => {
+  const indent = ' '.repeat(4 * depth);
+  const bracketIndent = ' '.repeat(4 * (depth - 1));
   
   const sortedKeys = Object.keys(tree).sort();
   
@@ -62,52 +60,46 @@ const formatStylish = (tree, depth = 0) => {
     const { type } = node;
     
     if (type === 'nested') {
-      const formattedChildren = formatStylish(node.children, depth + 1);
-      return `${currentIndent}  ${key}: ${formattedChildren}`;
+      const children = formatStylish(node.children, depth + 1);
+      return `${indent.slice(0, -2)}  ${key}: ${children}`;
     }
     
     if (type === 'added') {
-      const formattedValue = formatValue(node.value, depth + 1);
-      return `${currentIndent}+ ${key}: ${formattedValue}`;
+      const value = formatStylishValue(node.value, depth + 1);
+      return `${indent.slice(0, -2)}+ ${key}: ${value}`;
     }
     
     if (type === 'removed') {
-      const formattedValue = formatValue(node.value, depth + 1);
-      return `${currentIndent}- ${key}: ${formattedValue}`;
+      const value = formatStylishValue(node.value, depth + 1);
+      return `${indent.slice(0, -2)}- ${key}: ${value}`;
     }
     
     if (type === 'changed') {
-      const formattedOld = formatValue(node.oldValue, depth + 1);
-      const formattedNew = formatValue(node.newValue, depth + 1);
+      const oldValue = formatStylishValue(node.oldValue, depth + 1);
+      const newValue = formatStylishValue(node.newValue, depth + 1);
       return [
-        `${currentIndent}- ${key}: ${formattedOld}`,
-        `${currentIndent}+ ${key}: ${formattedNew}`
+        `${indent.slice(0, -2)}- ${key}: ${oldValue}`,
+        `${indent.slice(0, -2)}+ ${key}: ${newValue}`
       ];
     }
     
-    const formattedValue = formatValue(node.value, depth + 1);
-    return `${currentIndent}  ${key}: ${formattedValue}`;
+    const value = formatStylishValue(node.value, depth + 1);
+    return `${indent.slice(0, -2)}  ${key}: ${value}`;
   });
-  
-  if (depth === 0) {
-    return `{\n${lines.join('\n')}\n}`;
-  }
   
   return `{\n${lines.join('\n')}\n${bracketIndent}}`;
 };
 
-const formatValue = (value, depth) => {
+const formatStylishValue = (value, depth) => {
   if (isObject(value)) {
-    const indentSize = depth * 4;
-    const indent = ' '.repeat(indentSize);
-    const currentIndent = ' '.repeat(indentSize - 2);
-    const bracketIndent = ' '.repeat(indentSize - 4);
+    const indent = ' '.repeat(4 * depth);
+    const bracketIndent = ' '.repeat(4 * (depth - 1));
     
-    const sortedKeys = Object.keys(value).sort();
-    const lines = sortedKeys.map((key) => {
+    const keys = Object.keys(value).sort();
+    const lines = keys.map((key) => {
       const val = value[key];
-      const formattedVal = formatValue(val, depth + 1);
-      return `${currentIndent}  ${key}: ${formattedVal}`;
+      const formatted = formatStylishValue(val, depth + 1);
+      return `${indent.slice(0, -2)}  ${key}: ${formatted}`;
     });
     
     return `{\n${lines.join('\n')}\n${bracketIndent}}`;
