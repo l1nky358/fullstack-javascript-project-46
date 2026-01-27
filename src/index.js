@@ -22,20 +22,24 @@ const parse = (content, format) => {
 const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const buildTree = (obj1, obj2) => {
-  const allKeys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
+  const keys1 = Object.keys(obj1 || {});
+  const keys2 = Object.keys(obj2 || {});
+  const allKeys = [...new Set([...keys1, ...keys2])];
+  const sortedKeys = allKeys.sort();
+  
   const result = {};
   
-  for (const key of allKeys) {
+  for (const key of sortedKeys) {
     const value1 = obj1?.[key];
     const value2 = obj2?.[key];
     
-    if (!(key in obj1)) {
+    if (!(key in (obj1 || {}))) {
       result[key] = { type: 'added', value: value2 };
-    } else if (!(key in obj2)) {
+    } else if (!(key in (obj2 || {}))) {
       result[key] = { type: 'removed', value: value1 };
     } else if (isObject(value1) && isObject(value2)) {
       result[key] = { type: 'nested', children: buildTree(value1, value2) };
-    } else if (value1 === value2) {
+    } else if (JSON.stringify(value1) === JSON.stringify(value2)) {
       result[key] = { type: 'unchanged', value: value1 };
     } else {
       result[key] = { type: 'changed', oldValue: value1, newValue: value2 };
@@ -46,37 +50,39 @@ const buildTree = (obj1, obj2) => {
 };
 
 const formatStylish = (tree, depth = 1) => {
-  const indentSize = depth * 4 - 2;
-  const indent = ' '.repeat(indentSize);
-  const bracketIndent = ' '.repeat(indentSize - 2);
+  const indent = ' '.repeat(4 * depth);
+  const bracketIndent = ' '.repeat(4 * (depth - 1));
   
-  const lines = Object.entries(tree).flatMap(([key, node]) => {
+  const sortedKeys = Object.keys(tree).sort();
+  
+  const lines = sortedKeys.flatMap((key) => {
+    const node = tree[key];
     const { type } = node;
     
     if (type === 'nested') {
-      return `${indent}  ${key}: ${formatStylish(node.children, depth + 1)}`;
+      return `${indent}  ${key}: {\n${formatStylish(node.children, depth + 1)}\n${indent}  }`;
     }
     
     if (type === 'added') {
-      const formattedValue = formatValue(node.value, depth);
+      const formattedValue = formatValue(node.value, depth + 1);
       return `${indent}+ ${key}: ${formattedValue}`;
     }
     
     if (type === 'removed') {
-      const formattedValue = formatValue(node.value, depth);
+      const formattedValue = formatValue(node.value, depth + 1);
       return `${indent}- ${key}: ${formattedValue}`;
     }
     
     if (type === 'changed') {
-      const formattedOld = formatValue(node.oldValue, depth);
-      const formattedNew = formatValue(node.newValue, depth);
+      const formattedOld = formatValue(node.oldValue, depth + 1);
+      const formattedNew = formatValue(node.newValue, depth + 1);
       return [
         `${indent}- ${key}: ${formattedOld}`,
         `${indent}+ ${key}: ${formattedNew}`
       ];
     }
     
-    const formattedValue = formatValue(node.value, depth);
+    const formattedValue = formatValue(node.value, depth + 1);
     return `${indent}  ${key}: ${formattedValue}`;
   });
   
@@ -85,11 +91,12 @@ const formatStylish = (tree, depth = 1) => {
 
 const formatValue = (value, depth) => {
   if (isObject(value)) {
-    const indentSize = depth * 4;
-    const indent = ' '.repeat(indentSize);
-    const bracketIndent = ' '.repeat(indentSize - 2);
+    const indent = ' '.repeat(4 * depth);
+    const bracketIndent = ' '.repeat(4 * (depth - 1));
     
-    const lines = Object.entries(value).map(([key, val]) => {
+    const sortedKeys = Object.keys(value).sort();
+    const lines = sortedKeys.map((key) => {
+      const val = value[key];
       const formattedVal = formatValue(val, depth + 1);
       return `${indent}  ${key}: ${formattedVal}`;
     });
@@ -98,13 +105,15 @@ const formatValue = (value, depth) => {
   }
   
   if (value === null) return 'null';
-  if (value === undefined) return '';
-  if (typeof value === 'string') return value;
-  return String(value);
+  if (typeof value === 'boolean') return String(value);
+  return value;
 };
 
 const formatPlain = (tree, path = '') => {
-  const lines = Object.entries(tree).flatMap(([key, node]) => {
+  const sortedKeys = Object.keys(tree).sort();
+  
+  const lines = sortedKeys.flatMap((key) => {
+    const node = tree[key];
     const currentPath = path ? `${path}.${key}` : key;
     const { type } = node;
     
