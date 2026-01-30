@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import yaml from 'yaml'
 
-const getFormat = (filepath) => {
+const getFormat = filepath => {
   const ext = path.extname(filepath).toLowerCase()
   if (ext === '.json') return 'json'
   if (ext === '.yml' || ext === '.yaml') return 'yml'
@@ -19,7 +19,7 @@ const parse = (content, format) => {
   throw new Error(`Unsupported format: ${format}`)
 }
 
-const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value)
+const isObject = value => typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const buildTree = (obj1, obj2) => {
   const keys1 = Object.keys(obj1 || {})
@@ -55,7 +55,7 @@ const formatStylish = (tree, depth = 1) => {
   
   const sortedKeys = Object.keys(tree).sort()
   
-  const lines = sortedKeys.flatMap((key) => {
+  const lines = sortedKeys.flatMap(key => {
     const node = tree[key]
     const { type } = node
     
@@ -79,7 +79,7 @@ const formatStylish = (tree, depth = 1) => {
       const newValue = formatStylishValue(node.newValue, depth + 1)
       return [
         `${indent.slice(0, -2)}- ${key}: ${oldValue}`,
-        `${indent.slice(0, -2)}+ ${key}: ${newValue}`
+        `${indent.slice(0, -2)}+ ${key}: ${newValue}`,
       ]
     }
     
@@ -96,7 +96,7 @@ const formatStylishValue = (value, depth) => {
     const bracketIndent = ' '.repeat(4 * (depth - 1))
     
     const keys = Object.keys(value).sort()
-    const lines = keys.map((key) => {
+    const lines = keys.map(key => {
       const val = value[key]
       const formatted = formatStylishValue(val, depth + 1)
       return `${indent.slice(0, -2)}  ${key}: ${formatted}`
@@ -113,7 +113,7 @@ const formatStylishValue = (value, depth) => {
 const formatPlain = (tree, path = '') => {
   const sortedKeys = Object.keys(tree).sort()
   
-  const lines = sortedKeys.flatMap((key) => {
+  const lines = sortedKeys.flatMap(key => {
     const node = tree[key]
     const currentPath = path ? `${path}.${key}` : key
     const { type } = node
@@ -143,7 +143,7 @@ const formatPlain = (tree, path = '') => {
   return lines.join('\n')
 }
 
-const formatPlainValue = (value) => {
+const formatPlainValue = value => {
   if (isObject(value)) {
     return '[complex value]'
   }
