@@ -38,7 +38,7 @@ describe('Formatters', () => {
       
       expect(Array.isArray(parsedResult)).toBe(true)
       
-      parsedResult.forEach(node => {
+      parsedResult.forEach((node) => {
         expect(node).toHaveProperty('key')
         expect(node).toHaveProperty('type')
         expect(['added', 'removed', 'changed', 'unchanged', 'nested']).toContain(node.type)
