@@ -1,4 +1,4 @@
-const isObject = (value) =>
+const isObject = value =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const buildTree = (data1, data2) => {
@@ -17,7 +17,7 @@ const buildTree = (data1, data2) => {
         children: isObject(value2) ? buildTree({}, value2) : [],
       }
     }
-    
+
     if (!(key in data2)) {
       return {
         key,
@@ -26,7 +26,7 @@ const buildTree = (data1, data2) => {
         children: isObject(value1) ? buildTree(value1, {}) : [],
       }
     }
-    
+
     if (isObject(value1) && isObject(value2)) {
       return {
         key,
@@ -34,7 +34,7 @@ const buildTree = (data1, data2) => {
         children: buildTree(value1, value2),
       }
     }
-    
+
     if (value1 === value2) {
       return {
         key,
@@ -42,7 +42,7 @@ const buildTree = (data1, data2) => {
         type: 'unchanged',
       }
     }
-    
+
     return {
       key,
       oldValue: value1,
