@@ -9,19 +9,19 @@ const buildDiff = (data1, data2) => {
     if (!(key in data1)) {
       return { key, value: value2, type: 'added' }
     }
-    
+
     if (!(key in data2)) {
       return { key, value: value1, type: 'removed' }
     }
-    
+
     if (value1 === value2) {
       return { key, value: value1, type: 'unchanged' }
     }
-    
-    return { 
-      key, 
-      oldValue: value1, 
-      value: value2, 
+
+    return {
+      key,
+      oldValue: value1,
+      value: value2,
       type: 'changed',
     }
   })
