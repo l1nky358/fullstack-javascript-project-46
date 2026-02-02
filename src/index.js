@@ -26,9 +26,7 @@ const buildTree = (obj1, obj2) => {
   const keys2 = Object.keys(obj2 || {})
   const allKeys = [...new Set([...keys1, ...keys2])]
   const sortedKeys = allKeys.sort()
-  
   const result = {}
-  
   for (const key of sortedKeys) {
     const value1 = obj1?.[key]
     const value2 = obj2?.[key]
@@ -60,16 +58,16 @@ const formatStylish = (tree, depth = 1) => {
   const sortedKeys = Object.keys(tree).sort()
   
   const lines = sortedKeys.flatMap((key) => {
-    const node = tree[key]
-    const { type } = node
+  const node = tree[key]
+  const { type } = node
     
     if (type === 'nested') {
-      const children = formatStylish(node.children, depth + 1)
-      return `${indent.slice(0, -2)}  ${key}: ${children}`
+    const children = formatStylish(node.children, depth + 1)
+    return `${indent.slice(0, -2)}  ${key}: ${children}`
     }
     
     if (type === 'added') {
-      const value = formatStylishValue(node.value, depth + 1)
+    const value = formatStylishValue(node.value, depth + 1)
       return `${indent.slice(0, -2)}+ ${key}: ${value}`
     }
     
@@ -79,7 +77,7 @@ const formatStylish = (tree, depth = 1) => {
     }
     
     if (type === 'changed') {
-      const oldValue = formatStylishValue(node.oldValue, depth + 1)
+    const oldValue = formatStylishValue(node.oldValue, depth + 1)
       const newValue = formatStylishValue(node.newValue, depth + 1)
       return [
         `${indent.slice(0, -2)}- ${key}: ${oldValue}`,
