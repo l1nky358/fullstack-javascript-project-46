@@ -10,10 +10,10 @@ const formatters = {
 
 export default (formatName) => {
   const formatter = formatters[formatName]
-  
+
   if (!formatter) {
     throw new Error(`Unknown format: ${formatName}`)
   }
-  
+
   return formatter
 }
