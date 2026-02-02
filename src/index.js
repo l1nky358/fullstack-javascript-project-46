@@ -33,13 +33,17 @@ const buildTree = (obj1, obj2) => {
 
     if (!(key in (obj1 || {}))) {
       result[key] = { type: 'added', value: value2 }
-    } else if (!(key in (obj2 || {}))) {
+    }
+    else if (!(key in (obj2 || {}))) {
       result[key] = { type: 'removed', value: value1 }
-    } else if (isObject(value1) && isObject(value2)) {
+    }
+    else if (isObject(value1) && isObject(value2)) {
       result[key] = { type: 'nested', children: buildTree(value1, value2) }
-    } else if (JSON.stringify(value1) === JSON.stringify(value2)) {
+    }
+    else if (JSON.stringify(value1) === JSON.stringify(value2)) {
       result[key] = { type: 'unchanged', value: value1 }
-    } else {
+    }
+    else {
       result[key] = { type: 'changed', oldValue: value1, newValue: value2 }
     }
   }
