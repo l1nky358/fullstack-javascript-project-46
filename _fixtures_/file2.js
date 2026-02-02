@@ -1,5 +1,5 @@
 export default {
-  "timeout": 20,
-  "verbose": true,
-  "host": "hexlet.io"
+  timeout: 20,
+  verbose: true,
+  host: 'hexlet.io',
 }
