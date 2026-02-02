@@ -1,11 +1,11 @@
-const isObject = value =>
+const isObject = (value) =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const buildTree = (data1, data2) => {
   const keys = new Set([...Object.keys(data1), ...Object.keys(data2)])
   const sortedKeys = Array.from(keys).sort()
 
-  return sortedKeys.map(key => {
+  return sortedKeys.map((key) => {
     const value1 = data1[key]
     const value2 = data2[key]
 
