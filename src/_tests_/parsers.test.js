@@ -3,17 +3,17 @@ import path from 'path'
 import yaml from 'js-yaml'
 
 const parsers = {
-  json: content => JSON.parse(content),
-  yml: content => yaml.load(content),
-  yaml: content => yaml.load(content),
+  json: (content) => JSON.parse(content),
+  yml: (content) => yaml.load(content),
+  yaml: (content) => yaml.load(content),
 }
 
-const getParser = filepath => {
+const getParser = (filepath) => {
   const ext = path.extname(filepath).slice(1).toLowerCase()
   return parsers[ext]
 }
 
-export const parseFile = filepath => {
+export const parseFile = (filepath) => {
   const content = readFileSync(filepath, 'utf-8')
   const parser = getParser(filepath)
   
